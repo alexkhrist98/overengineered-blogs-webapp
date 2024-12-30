@@ -19,6 +19,10 @@ services:
       - "traefik.http.services.app.loadbalancer.server.port=80"
     volumes:
       - .:/var/www/laravel
+    environment:
+      - APP_ENV=${APP_ENV}
+      - DB_CONNECTION=${DB_CONNECTION}
+      - APP_KEY=${APP_KEY}
     
   traefik:
     image: traefik:v2.10
