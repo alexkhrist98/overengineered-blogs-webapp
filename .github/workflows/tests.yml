@@ -38,12 +38,20 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy environment file
-        run: cp .env.example .env
+        run: cp .env.ci .env
+      
       - name: Create SQLite instance
         run: touch ./database/database.sqlite
 
       - name: Generate app key
         run: php artisan key:generate
+      - name: Setup npm
+        uses: bahmutov/npm-install@v1
+      
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Execute tests
         run: vendor/bin/phpunit
