@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\MainPageSectionResource\Pages;
 use App\Filament\Admin\Resources\MainPageSectionResource\RelationManagers;
+use App\Enums\MainPageSectionTypeEnum;
 use App\Models\MainPageSection;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -21,14 +22,11 @@ class MainPageSectionResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required(),
-                Forms\Components\Textarea::make('content')
-                    ->required()
-                    ->columnSpanFull(),
-            ]);
+        return $form->schema([
+            Forms\Components\TextInput::make('title')->required(),
+            Forms\Components\Select::make('type')
+                ->options(MainPageSectionTypeEnum::forAdminPanel()),
+        ]);
     }
 
     public static function table(Table $table): Table
