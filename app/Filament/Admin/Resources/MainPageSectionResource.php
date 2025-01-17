@@ -3,6 +3,8 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\MainPageSectionResource\Pages;
+use App\Filament\Admin\Resources\MainPageSectionResource\Forms\LinkWithTextBlockForm;
+use App\Filament\Admin\Resources\MainPageSectionResource\Forms\TextBlockWithSliderForm;
 use App\Filament\Admin\Resources\MainPageSectionResource\RelationManagers;
 use App\Enums\MainPageSectionTypeEnum;
 use App\Models\MainPageSection;
@@ -16,6 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MainPageSectionResource extends Resource
 {
+    public static function getLabel(): string
+    {
+        return 'Блок главной страницы';
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return 'Блоки главной страницы';
+    }
     protected static ?string $model = MainPageSection::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -23,10 +34,24 @@ class MainPageSectionResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('title')->required(),
+            Forms\Components\TextInput::make('title')
+                ->label('Заголовк блока')
+                ->required(),
             Forms\Components\Select::make('type')
-                ->options(MainPageSectionTypeEnum::forAdminPanel()),
-        ]);
+                ->label('Тип блока')
+                ->options(MainPageSectionTypeEnum::forAdminPanel())
+                ->required()
+                ->live(),
+            Forms\Components\KeyValue::make('content')
+                ->label('Содержимое')
+                ->schema(fn($get) => match ($get('type')) {
+                    MainPageSectionTypeEnum::TEXT_BLOCK_WITH_SLIDER->value => TextBlockWithSliderForm::schema(),
+                    MainPageSectionTypeEnum::LINK_WITH_TEXT_BLOCK->value => LinkWithTextBlockForm::schema(),
+                    default => [],
+                })
+                ->visible(fn($get) => (bool) $get('type'))
+        ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table
