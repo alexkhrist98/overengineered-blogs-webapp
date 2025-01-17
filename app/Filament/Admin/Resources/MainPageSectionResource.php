@@ -35,21 +35,32 @@ class MainPageSectionResource extends Resource
     {
         return $form->schema([
             Forms\Components\TextInput::make('title')
-                ->label('Заголовк блока')
+                ->label('Заголовок блока')
                 ->required(),
+            Forms\Components\Checkbox::make('is_active')
+                ->label('Блок активен')
+                ->default(false),
+            Forms\Components\TextInput::make('sort')
+                ->integer()
+                ->label('Сортировка')
+                ->default(100),
             Forms\Components\Select::make('type')
                 ->label('Тип блока')
                 ->options(MainPageSectionTypeEnum::forAdminPanel())
                 ->required()
                 ->live(),
-            Forms\Components\KeyValue::make('content')
+            Forms\Components\Section::make('Содержимое блока')
                 ->label('Содержимое')
-                ->schema(fn($get) => match ($get('type')) {
-                    MainPageSectionTypeEnum::TEXT_BLOCK_WITH_SLIDER->value => TextBlockWithSliderForm::schema(),
-                    MainPageSectionTypeEnum::LINK_WITH_TEXT_BLOCK->value => LinkWithTextBlockForm::schema(),
-                    default => [],
-                })
-                ->visible(fn($get) => (bool) $get('type'))
+                ->schema(
+                    function ($get) {
+                        return match ($get('type')) {
+                            MainPageSectionTypeEnum::TEXT_BLOCK_WITH_SLIDER->value => TextBlockWithSliderForm::schema(),
+                            MainPageSectionTypeEnum::LINK_WITH_TEXT_BLOCK->value => LinkWithTextBlockForm::schema(),
+                            default => [],
+                        };
+                    }
+                )
+                ->visible(fn($get, $record) => (bool) $get('type') || $record?->type)
         ])
             ->columns(1);
     }
@@ -96,5 +107,14 @@ class MainPageSectionResource extends Resource
             'create' => Pages\CreateMainPageSection::route('/create'),
             'edit' => Pages\EditMainPageSection::route('/{record}/edit'),
         ];
+    }
+
+    private function getSchemaFromRecord(): array
+    {
+        return match ($this->record?->type) {
+            MainPageSectionTypeEnum::LINK_WITH_TEXT_BLOCK => LinkWithTextBlockForm::schema(),
+            MainPageSectionTypeEnum::TEXT_BLOCK_WITH_SLIDER => TextBlockWithSliderForm::schema(),
+            default => [],
+        };
     }
 }

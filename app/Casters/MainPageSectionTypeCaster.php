@@ -10,6 +10,9 @@ class MainPageSectionTypeCaster implements CastsAttributes
 {
     public function set($model, string $key, $value, array $attributes): ?string
     {
+        if ($value instanceof \UnitEnum) {
+            return $value->value;
+        }
         return $value;
     }
 
