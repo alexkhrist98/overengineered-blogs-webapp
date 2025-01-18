@@ -20,12 +20,12 @@ class MainPageSectionResource extends Resource
 {
     public static function getLabel(): string
     {
-        return 'Блок главной страницы';
+        return __('admin.items.main_page_section');
     }
 
     public static function getPluralLabel(): string
     {
-        return 'Блоки главной страницы';
+        return __('admin.items.main_page_sections');
     }
     protected static ?string $model = MainPageSection::class;
 
